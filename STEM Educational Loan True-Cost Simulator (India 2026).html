@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STEM Educational Loan True-Cost Simulator (India 2026)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    input[type="range"] {
+      accent-color: #4f46e5;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .card-shadow {
+      box-shadow: 0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.06);
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-indigo-100 selection:text-indigo-900">
+  <!-- Header -->
+  <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div class="flex items-center gap-2.5">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
+          <i data-lucide="graduation-cap" class="h-5 w-5"></i>
+        </div>
+        <div>
+          <h1 id="brand-title" class="text-base font-bold tracking-tight text-slate-900 sm:text-lg">STEM Loan True-Cost Simulator</h1>
+          <p id="brand-subtitle" class="text-xs text-slate-500">India 2026 · Reveals hidden college costs, moratorium shock &amp; post-grad EMI stress</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a id="btn-brand-cta" href="https://example.com" target="_blank" rel="noopener noreferrer" class="hidden inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700 active:scale-[0.98]">
+          <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
+          <span id="brand-cta-label">Get Free Loan Help</span>
+        </a>
+        <button id="btn-copy-summary" type="button" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 active:scale-[0.98]">
+          <i data-lucide="copy" class="h-3.5 w-3.5"></i>
+          <span>Copy Summary</span>
+        </button>
+        <button id="btn-reset" type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 active:scale-[0.98]">
+          <i data-lucide="rotate-ccw" class="h-3.5 w-3.5"></i>
+          <span>Reset</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Toast notification -->
+  <div id="toast" class="pointer-events-none fixed bottom-5 right-5 z-50 translate-y-4 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-medium text-white opacity-0 shadow-lg transition-all duration-200">
+    Summary copied to clipboard!
+  </div>
+
+  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+    <!-- Scenario Presets -->
+    <section aria-label="Quick Scenario Presets" class="mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Quick Scenario Presets</span>
+        <span class="text-xs text-slate-500">Tap a preset or customize every number below</span>
+      </div>
+      <div id="preset-buttons" class="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+        <button type="button" data-preset="btech-private" class="preset-btn flex flex-col items-start rounded-xl border border-indigo-600 bg-indigo-50/70 p-3 text-left transition hover:border-indigo-500">
+          <span class="text-xs font-bold text-indigo-900">B.Tech Private (Pune/BLR)</span>
+          <span class="mt-0.5 text-[11px] text-indigo-700">₹3.2L/yr · 4 yrs · PG stay</span>
+        </button>
+        <button type="button" data-preset="iit-nit" class="preset-btn flex flex-col items-start rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-indigo-300">
+          <span class="text-xs font-bold text-slate-900">IIT / NIT Domestic</span>
+          <span class="mt-0.5 text-[11px] text-slate-500">₹2.4L/yr · 4 yrs · Hostel</span>
+        </button>
+        <button type="button" data-preset="ms-abroad" class="preset-btn flex flex-col items-start rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-indigo-300">
+          <span class="text-xs font-bold text-slate-900">MS Abroad (USA / EU)</span>
+          <span class="mt-0.5 text-[11px] text-slate-500">₹22L/yr · 2 yrs · High living</span>
+        </button>
+        <button type="button" data-preset="mtech-india" class="preset-btn flex flex-col items-start rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-indigo-300">
+          <span class="text-xs font-bold text-slate-900">M.Tech / Research</span>
+          <span class="mt-0.5 text-[11px] text-slate-500">₹1.8L/yr · 2 yrs · Stipend offset</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Two-Column Grid -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <!-- Left Column: Inputs (5 cols on lg) -->
+      <div class="space-y-5 lg:col-span-5">
+        <!-- 1. Tuition & Duration -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 card-shadow">
+          <div class="mb-4 flex items-center gap-2">
+            <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+              <i data-lucide="book-open" class="h-4 w-4"></i>
+            </span>
+            <h2 class="text-sm font-bold text-slate-900">1. Sticker Tuition &amp; Contribution</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700">
+                <label for="input-tuition">Annual Tuition Fee (Year 1)</label>
+                <span id="val-tuition" class="font-bold text-indigo-600 tabular-nums">₹3,20,000</span>
+              </div>
+              <input id="input-tuition" type="range" min="50000" max="3500000" step="10000" value="320000" class="mt-1.5 w-full cursor-pointer" />
+              <div class="mt-1 flex justify-between text-[10px] text-slate-400">
+                <span>₹50k</span><span>₹15L</span><span>₹35L</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="input-duration" class="block text-xs font-medium text-slate-700">Course Duration</label>
+                <select id="input-duration" class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none">
+                  <option value="2">2 Years (MS / M.Tech)</option>
+                  <option value="3">3 Years (B.Sc / BCA)</option>
+                  <option value="4" selected>4 Years (B.Tech / BE)</option>
+                  <option value="5">5 Years (Dual Degree)</option>
+                </select>
+              </div>
+              <div>
+                <label for="input-inflation" class="block text-xs font-medium text-slate-700">Annual Fee Hike (%)</label>
+                <input id="input-inflation" type="number" min="0" max="15" step="0.5" value="5" class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-800 tabular-nums focus:border-indigo-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700">
+                <label for="input-contribution">Scholarship / Family Savings (Total)</label>
+                <span id="val-contribution" class="font-bold text-emerald-600 tabular-nums">₹2,00,000</span>
+              </div>
+              <input id="input-contribution" type="range" min="0" max="3000000" step="25000" value="200000" class="mt-1.5 w-full cursor-pointer" />
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Hidden & Living Costs -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 card-shadow">
+          <div class="mb-1 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+                <i data-lucide="eye-off" class="h-4 w-4"></i>
+              </span>
+              <h2 class="text-sm font-bold text-slate-900">2. "Hidden" Costs Colleges Omit</h2>
+            </div>
+            <span id="badge-hidden-total" class="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800 tabular-nums">+₹0</span>
+          </div>
+          <p class="mb-3.5 text-[11px] text-slate-500">Toggle items to see how living &amp; gear expenses inflate your actual loan.</p>
+
+          <div class="space-y-3">
+            <!-- Living Arrangement Dropdown + Monthly Cost -->
+            <div class="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5 space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <label for="input-living-type" class="text-xs font-medium text-slate-700">Living Arrangement</label>
+                <select id="input-living-type" class="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none">
+                  <option value="hostel">1. Campus Hostel + Mess</option>
+                  <option value="pg" selected>2. PG / Shared Flat</option>
+                  <option value="day-scholar">3. Day Scholar (Home + Commute)</option>
+                  <option value="abroad">4. Abroad Housing / Studio</option>
+                </select>
+              </div>
+              <div class="flex items-center justify-between gap-3">
+                <label class="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-700">
+                  <input id="chk-hostel" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                  <span id="label-living-cost">Monthly Living &amp; Food <span class="text-slate-400">(₹/mo)</span></span>
+                </label>
+                <input id="input-hostel" type="number" min="0" max="200000" step="500" value="12000" class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-right text-xs font-semibold text-slate-800 tabular-nums focus:border-indigo-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <!-- Laptop & Gear -->
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+              <label class="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-700">
+                <input id="chk-laptop" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                <span>Laptop, Software &amp; Gear <span class="text-slate-400">(once)</span></span>
+              </label>
+              <input id="input-laptop" type="number" min="0" max="500000" step="5000" value="85000" class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-right text-xs font-semibold text-slate-800 tabular-nums focus:border-indigo-500 focus:outline-none" />
+            </div>
+
+            <!-- Exam & Deposits -->
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+              <label class="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-700">
+                <input id="chk-exam" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                <span>Exam, Lab &amp; Misc Fees <span class="text-slate-400">(₹/yr)</span></span>
+              </label>
+              <input id="input-exam" type="number" min="0" max="300000" step="1000" value="20000" class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-right text-xs font-semibold text-slate-800 tabular-nums focus:border-indigo-500 focus:outline-none" />
+            </div>
+
+            <!-- Travel & Relocation -->
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/70 p-2.5">
+              <label class="flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-700">
+                <input id="chk-travel" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                <span>Travel &amp; Relocation <span class="text-slate-400">(₹/yr)</span></span>
+              </label>
+              <input id="input-travel" type="number" min="0" max="500000" step="2000" value="18000" class="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-right text-xs font-semibold text-slate-800 tabular-nums focus:border-indigo-500 focus:outline-none" />
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Loan Terms (2026 India) -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 card-shadow">
+          <div class="mb-4 flex items-center gap-2">
+            <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-50 text-sky-600">
+              <i data-lucide="landmark" class="h-4 w-4"></i>
+            </span>
+            <h2 class="text-sm font-bold text-slate-900">3. Loan Terms (2026 India Rates)</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700">
+                <label for="input-rate">Interest Rate (% p.a.)</label>
+                <span id="val-rate" class="font-bold text-sky-700 tabular-nums">9.65%</span>
+              </div>
+              <input id="input-rate" type="range" min="6.5" max="15" step="0.05" value="9.65" class="mt-1.5 w-full cursor-pointer" />
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <button type="button" data-rate="9.15" class="rate-chip rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:border-sky-400 hover:text-sky-700">SBI Collateral 9.15%</button>
+                <button type="button" data-rate="9.65" class="rate-chip rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:border-sky-400 hover:text-sky-700">SBI Standard 9.65%</button>
+                <button type="button" data-rate="10.15" class="rate-chip rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:border-sky-400 hover:text-sky-700">No Collateral 10.15%</button>
+                <button type="button" data-rate="11.50" class="rate-chip rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:border-sky-400 hover:text-sky-700">NBFC 11.50%</button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="input-grace" class="block text-xs font-medium text-slate-700">Grace After Course</label>
+                <select id="input-grace" class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none">
+                  <option value="0">0 Months</option>
+                  <option value="6" selected>6 Months</option>
+                  <option value="12">12 Months</option>
+                </select>
+              </div>
+              <div>
+                <label for="input-tenure" class="block text-xs font-medium text-slate-700">Repayment Tenure</label>
+                <select id="input-tenure" class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-800 focus:border-indigo-500 focus:outline-none">
+                  <option value="5">5 Years</option>
+                  <option value="7">7 Years</option>
+                  <option value="10" selected>10 Years</option>
+                  <option value="12">12 Years</option>
+                  <option value="15">15 Years</option>
+                </select>
+              </div>
+            </div>
+
+            <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-indigo-100 bg-indigo-50/50 p-3">
+              <input id="chk-pay-moratorium" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+              <span class="text-xs leading-relaxed text-slate-700">
+                <strong class="font-semibold text-slate-900">Pay simple interest during study</strong>
+                <span class="block text-[11px] text-slate-500">Prevents unpaid study interest from capitalizing into your principal before EMIs start.</span>
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <!-- 4. Post-Grad Reality & Tax -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 card-shadow">
+          <div class="mb-4 flex items-center gap-2">
+            <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+              <i data-lucide="briefcase" class="h-4 w-4"></i>
+            </span>
+            <h2 class="text-sm font-bold text-slate-900">4. Post-Grad Reality &amp; Tax</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700">
+                <label for="input-ctc">Expected Starting CTC (Annual)</label>
+                <span id="val-ctc" class="font-bold text-emerald-700 tabular-nums">₹8.0 LPA</span>
+              </div>
+              <input id="input-ctc" type="range" min="3" max="45" step="0.5" value="8" class="mt-1.5 w-full cursor-pointer" />
+            </div>
+
+            <div>
+              <span class="block text-xs font-medium text-slate-700 mb-1.5">Job Market Stress Test</span>
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" data-market="best" class="market-btn rounded-lg border border-slate-200 bg-white py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">Best (+15%)</button>
+                <button type="button" data-market="base" class="market-btn rounded-lg border border-indigo-600 bg-indigo-50 py-1.5 text-xs font-semibold text-indigo-700">Base Case</button>
+                <button type="button" data-market="tough" class="market-btn rounded-lg border border-slate-200 bg-white py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">Tough (-20%)</button>
+              </div>
+            </div>
+
+            <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border border-emerald-100 bg-emerald-50/50 p-3">
+              <input id="chk-sec80e" type="checkbox" checked class="mt-0.5 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+              <span class="text-xs leading-relaxed text-slate-700">
+                <strong class="font-semibold text-slate-900">Include Sec 80E / Sec 129 Tax Savings</strong>
+                <span class="block text-[11px] text-slate-500">100% interest deduction for up to 8 years under Old Tax Regime (Income Tax Act, 2025 Sec 129).</span>
+              </span>
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Live Dashboard (7 cols on lg) -->
+      <div class="space-y-5 lg:col-span-7">
+        <!-- Hero KPI Grid -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <!-- True Total Cost -->
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 card-shadow">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">True Total Cost</span>
+              <span id="badge-multiplier" class="rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700 tabular-nums">1.45x sticker</span>
+            </div>
+            <div id="kpi-true-cost" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 tabular-nums sm:text-3xl">₹0</div>
+            <p id="kpi-sticker-sub" class="mt-1 text-xs text-slate-500 tabular-nums">Sticker tuition: ₹0 · Loan needed: ₹0</p>
+          </div>
+
+          <!-- Monthly EMI & Anxiety Meter -->
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 card-shadow">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Monthly EMI</span>
+              <span id="badge-anxiety" class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">Comfortable</span>
+            </div>
+            <div id="kpi-emi" class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 tabular-nums sm:text-3xl">₹0/mo</div>
+            <div class="mt-2">
+              <div class="flex justify-between text-[11px] font-medium text-slate-600 mb-1">
+                <span>EMI vs. Est. Monthly Take-Home</span>
+                <span id="kpi-emi-pct" class="font-bold tabular-nums">0%</span>
+              </div>
+              <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                <div id="anxiety-bar" class="h-full rounded-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secondary KPI Strip -->
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div class="rounded-2xl border border-slate-200 bg-white p-4 card-shadow">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Moratorium Shock</span>
+            <div id="kpi-moratorium" class="mt-1 text-lg font-bold text-rose-600 tabular-nums">₹0</div>
+            <p id="kpi-moratorium-sub" class="mt-0.5 text-[11px] text-slate-500">Interest added before 1st EMI</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-4 card-shadow">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total Interest Paid</span>
+            <div id="kpi-interest" class="mt-1 text-lg font-bold text-slate-900 tabular-nums">₹0</div>
+            <p class="mt-0.5 text-[11px] text-slate-500">Over full loan lifecycle</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white p-4 card-shadow">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Est. Sec 80E Savings</span>
+            <div id="kpi-tax-save" class="mt-1 text-lg font-bold text-emerald-600 tabular-nums">₹0</div>
+            <p id="kpi-tax-sub" class="mt-0.5 text-[11px] text-slate-500">First 8 yrs (Old Tax Regime)</p>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+          <!-- Cost Breakdown Doughnut -->
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 card-shadow">
+            <h3 class="text-sm font-bold text-slate-900">Where Every Rupee Goes</h3>
+            <p class="mb-3 text-xs text-slate-500">Net tuition vs. hidden living costs vs. interest</p>
+            <div class="relative h-64">
+              <canvas id="chart-breakdown"></canvas>
+            </div>
+          </div>
+
+          <!-- Loan Balance Trajectory -->
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 card-shadow">
+            <h3 class="text-sm font-bold text-slate-900">Loan Balance Over Time</h3>
+            <p class="mb-3 text-xs text-slate-500">Capitalized moratorium vs. paying study interest</p>
+            <div class="relative h-64">
+              <canvas id="chart-trajectory"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personalized Insights & Anxiety-to-Clarity Tips -->
+        <section class="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/80 to-white p-5 card-shadow">
+          <div class="mb-3 flex items-center gap-2">
+            <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white">
+              <i data-lucide="sparkles" class="h-4 w-4"></i>
+            </span>
+            <h3 class="text-sm font-bold text-slate-900">Clarity Insights for Your Plan</h3>
+          </div>
+          <ul id="insights-list" class="space-y-2 text-xs leading-relaxed text-slate-700">
+            <!-- Populated dynamically -->
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <!-- Grounded Sources Footer -->
+    <footer class="mt-8 border-t border-slate-200 pt-5 pb-8 text-xs text-slate-500">
+      <div class="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+        <p>
+          Defaults grounded in Oct 2026 Indian lender benchmarks &amp; tax rules. Estimates are for educational planning; verify exact terms with your bank.
+        </p>
+        <div class="flex flex-wrap gap-4 font-medium">
+          <a href="https://sbi.bank.in/web/interest-rates/interest-rates/loan-schemes-interest-rates/education-loan-scheme" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">SBI Education Loan Rates (Oct 2026)</a>
+          <a href="https://www.bajajfinserv.in/section-80e" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">Sec 80E / Sec 129 Tax Deduction</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // =========================================================================
+    // EASY BUYER CONFIG: Edit brandTitle, currencySymbol, and contact link here
+    // =========================================================================
+    const SIMULATOR_CONFIG = {
+      brandTitle: 'STEM Loan True-Cost Simulator',
+      brandSubtitle: 'India 2026 · Reveals hidden college costs, moratorium shock & post-grad EMI stress',
+      currencySymbol: '₹',       // e.g. '₹', '$', '€', '£'
+      locale: 'en-IN',           // Use 'en-IN' for Lakhs/Crores, or 'en-US' for K/M
+      ctaLabel: '',              // e.g. 'Book Free Counseling' (leave empty to hide button)
+      ctaUrl: ''                 // e.g. 'https://wa.me/919999999999' or 'mailto:you@site.com'
+    };
+
+    (function () {
+      const LIVING_DEFAULTS = {
+        'hostel': { cost: 8000, label: 'Hostel + Mess' },
+        'pg': { cost: 12000, label: 'PG / Shared Flat' },
+        'day-scholar': { cost: 3500, label: 'Day Scholar (Commute & Meals)' },
+        'abroad': { cost: 95000, label: 'Abroad Housing / Studio' }
+      };
+
+      const PRESETS = {
+        'btech-private': {
+          tuition: 320000, duration: 4, inflation: 5, contribution: 200000,
+          livingType: 'pg', chkHostel: true, hostel: 12000,
+          chkLaptop: true, laptop: 85000,
+          chkExam: true, exam: 20000,
+          chkTravel: true, travel: 18000,
+          rate: 9.65, grace: 6, tenure: 10, payMoratorium: false,
+          ctc: 8, market: 'base', sec80e: true
+        },
+        'iit-nit': {
+          tuition: 240000, duration: 4, inflation: 2, contribution: 150000,
+          livingType: 'hostel', chkHostel: true, hostel: 7500,
+          chkLaptop: true, laptop: 80000,
+          chkExam: true, exam: 12000,
+          chkTravel: true, travel: 15000,
+          rate: 9.15, grace: 6, tenure: 10, payMoratorium: false,
+          ctc: 14, market: 'base', sec80e: true
+        },
+        'ms-abroad': {
+          tuition: 2200000, duration: 2, inflation: 4, contribution: 800000,
+          livingType: 'abroad', chkHostel: true, hostel: 95000,
+          chkLaptop: true, laptop: 120000,
+          chkExam: true, exam: 90000,
+          chkTravel: true, travel: 160000,
+          rate: 10.50, grace: 6, tenure: 10, payMoratorium: false,
+          ctc: 32, market: 'base', sec80e: true
+        },
+        'mtech-india': {
+          tuition: 180000, duration: 2, inflation: 2, contribution: 250000,
+          livingType: 'hostel', chkHostel: true, hostel: 8000,
+          chkLaptop: true, laptop: 75000,
+          chkExam: true, exam: 10000,
+          chkTravel: true, travel: 12000,
+          rate: 9.15, grace: 6, tenure: 7, payMoratorium: true,
+          ctc: 12, market: 'base', sec80e: true
+        }
+      };
+
+      const state = { ...PRESETS['btech-private'], activePreset: 'btech-private' };
+
+      const el = (id) => document.getElementById(id);
+
+      const formatINR = (num) => {
+        const sym = SIMULATOR_CONFIG.currencySymbol || '₹';
+        const loc = SIMULATOR_CONFIG.locale || 'en-IN';
+        const val = Math.round(num);
+        if (!Number.isFinite(val)) return sym + '0';
+        return sym + val.toLocaleString(loc);
+      };
+
+      const formatCompactINR = (num) => {
+        const sym = SIMULATOR_CONFIG.currencySymbol || '₹';
+        const loc = SIMULATOR_CONFIG.locale || 'en-IN';
+        const abs = Math.abs(num);
+        if (loc === 'en-IN') {
+          if (abs >= 10000000) return sym + (num / 10000000).toFixed(2) + ' Cr';
+          if (abs >= 100000) return sym + (num / 100000).toFixed(2) + ' L';
+        } else {
+          if (abs >= 1000000) return sym + (num / 1000000).toFixed(2) + 'M';
+          if (abs >= 1000) return sym + (num / 1000).toFixed(1) + 'K';
+        }
+        return formatINR(num);
+      };
+
+      let breakdownChart = null;
+      let trajectoryChart = null;
+
+      function readInputsIntoState() {
+        state.tuition = Number(el('input-tuition').value) || 0;
+        state.duration = Number(el('input-duration').value) || 4;
+        state.inflation = Math.max(0, Number(el('input-inflation').value) || 0);
+        state.contribution = Number(el('input-contribution').value) || 0;
+
+        state.livingType = el('input-living-type').value;
+        state.chkHostel = el('chk-hostel').checked;
+        state.hostel = Math.max(0, Number(el('input-hostel').value) || 0);
+        state.chkLaptop = el('chk-laptop').checked;
+        state.laptop = Math.max(0, Number(el('input-laptop').value) || 0);
+        state.chkExam = el('chk-exam').checked;
+        state.exam = Math.max(0, Number(el('input-exam').value) || 0);
+        state.chkTravel = el('chk-travel').checked;
+        state.travel = Math.max(0, Number(el('input-travel').value) || 0);
+
+        state.rate = Number(el('input-rate').value) || 0;
+        state.grace = Number(el('input-grace').value) || 0;
+        state.tenure = Number(el('input-tenure').value) || 10;
+        state.payMoratorium = el('chk-pay-moratorium').checked;
+
+        state.ctc = Number(el('input-ctc').value) || 3;
+        state.sec80e = el('chk-sec80e').checked;
+      }
+
+      function writeStateToInputs() {
+        el('input-tuition').value = state.tuition;
+        el('input-duration').value = state.duration;
+        el('input-inflation').value = state.inflation;
+        el('input-contribution').value = state.contribution;
+
+        el('input-living-type').value = state.livingType;
+        el('chk-hostel').checked = state.chkHostel;
+        el('input-hostel').value = state.hostel;
+        el('chk-laptop').checked = state.chkLaptop;
+        el('input-laptop').value = state.laptop;
+        el('chk-exam').checked = state.chkExam;
+        el('input-exam').value = state.exam;
+        el('chk-travel').checked = state.chkTravel;
+        el('input-travel').value = state.travel;
+
+        el('input-rate').value = state.rate;
+        el('input-grace').value = state.grace;
+        el('input-tenure').value = state.tenure;
+        el('chk-pay-moratorium').checked = state.payMoratorium;
+
+        el('input-ctc').value = state.ctc;
+        el('chk-sec80e').checked = state.sec80e;
+
+        document.querySelectorAll('.market-btn').forEach((btn) => {
+          const active = btn.dataset.market === state.market;
+          btn.className = active
+            ? 'market-btn rounded-lg border border-indigo-600 bg-indigo-50 py-1.5 text-xs font-semibold text-indigo-700'
+            : 'market-btn rounded-lg border border-slate-200 bg-white py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50';
+        });
+
+        el('input-living-type').addEventListener('change', () => {
+        const type = el('input-living-type').value;
+        const def = LIVING_DEFAULTS[type];
+        if (def) {
+          el('chk-hostel').checked = true;
+          el('input-hostel').value = def.cost;
+        }
+        render();
+      });
+
+      document.querySelectorAll('.preset-btn').forEach((btn) => {
+          const active = btn.dataset.preset === state.activePreset;
+          btn.classList.toggle('border-indigo-600', active);
+          btn.classList.toggle('bg-indigo-50/70', active);
+          btn.classList.toggle('border-slate-200', !active);
+          btn.classList.toggle('bg-white', !active);
+        });
+      }
+
+      function calcEMI(principal, annualRate, months) {
+        if (principal <= 0 || months <= 0) return 0;
+        const r = annualRate / 100 / 12;
+        if (r === 0) return principal / months;
+        const factor = Math.pow(1 + r, months);
+        return (principal * r * factor) / (factor - 1);
+      }
+
+      function computeSimulation() {
+        const yrs = state.duration;
+        const inf = state.inflation / 100;
+
+        // Annual costs with inflation
+        let stickerTuition = 0;
+        const annualDisbursements = [];
+        const annualHiddenBase =
+          (state.chkHostel ? state.hostel * 12 : 0) +
+          (state.chkExam ? state.exam : 0) +
+          (state.chkTravel ? state.travel : 0);
+
+        let totalHidden = state.chkLaptop ? state.laptop : 0;
+
+        for (let y = 0; y < yrs; y++) {
+          const tYear = state.tuition * Math.pow(1 + inf, y);
+          const hYear = annualHiddenBase * Math.pow(1 + inf * 0.8, y);
+          stickerTuition += tYear;
+          totalHidden += hYear;
+          const totalYearCost = tYear + hYear + (y === 0 && state.chkLaptop ? state.laptop : 0);
+          annualDisbursements.push(totalYearCost);
+        }
+
+        const grossCollegeCost = stickerTuition + totalHidden;
+        const loanPrincipal = Math.max(0, grossCollegeCost - state.contribution);
+
+        // Allocate contribution proportionally to reduce annual disbursements
+        const ratio = grossCollegeCost > 0 ? loanPrincipal / grossCollegeCost : 0;
+        const netDisbursements = annualDisbursements.map((d) => d * ratio);
+
+        // Simple interest during study + grace period (standard Indian education loan moratorium rule)
+        const rateDec = state.rate / 100;
+        const graceYears = state.grace / 12;
+        let moratoriumInterest = 0;
+        const studyBalancesCap = [];
+        const studyBalancesPaid = [];
+        let cumPrincipal = 0;
+
+        for (let y = 0; y < yrs; y++) {
+          cumPrincipal += netDisbursements[y];
+          // Each year's disbursement accrues simple interest for remaining study years + grace
+          const yearsAccruing = (yrs - y - 0.5) + graceYears; // mid-year average disbursement
+          const yrInterest = netDisbursements[y] * rateDec * Math.max(0, yearsAccruing);
+          moratoriumInterest += yrInterest;
+          studyBalancesCap.push(Math.round(cumPrincipal + (moratoriumInterest * ((y + 1) / yrs))));
+          studyBalancesPaid.push(Math.round(cumPrincipal));
+        }
+
+        const principalCap = loanPrincipal + moratoriumInterest;
+        const principalNoCap = loanPrincipal;
+
+        const months = state.tenure * 12;
+        const emiCap = calcEMI(principalCap, state.rate, months);
+        const emiNoCap = calcEMI(principalNoCap, state.rate, months);
+
+        const activeEMI = state.payMoratorium ? emiNoCap : emiCap;
+        const activeStartPrincipal = state.payMoratorium ? principalNoCap : principalCap;
+
+        const totalRepaymentPaid = activeEMI * months;
+        const repaymentInterest = Math.max(0, totalRepaymentPaid - activeStartPrincipal);
+        const totalInterestAll = moratoriumInterest + repaymentInterest;
+
+        // Effective true cost = sticker + hidden + total interest paid
+        const trueTotalCost = grossCollegeCost + totalInterestAll;
+
+        // Post-grad take-home estimate
+        const marketMult = state.market === 'best' ? 1.15 : state.market === 'tough' ? 0.80 : 1.0;
+        const effectiveCTC = state.ctc * 100000 * marketMult;
+        // Rough take-home: ~85% for <10L, ~78% for 10-20L, ~70% for >20L
+        const takeHomeFactor = effectiveCTC < 1000000 ? 0.86 : effectiveCTC < 2000000 ? 0.78 : 0.70;
+        const monthlyTakeHome = (effectiveCTC * takeHomeFactor) / 12;
+        const emiPct = monthlyTakeHome > 0 ? (activeEMI / monthlyTakeHome) * 100 : 0;
+
+        // Section 80E / Sec 129 tax savings over first 8 repayment years (Old Tax Regime)
+        // Marginal slab approximation
+        const marginalRate = effectiveCTC <= 700000 ? 0.05 : effectiveCTC <= 1000000 ? 0.20 : 0.30;
+        let first8YrInterest = 0;
+        let bal = activeStartPrincipal;
+        const rMonthly = rateDec / 12;
+        const repayBalancesCap = [];
+        const repayBalancesPaid = [];
+        let balCap = principalCap;
+        let balPaid = principalNoCap;
+
+        for (let y = 1; y <= state.tenure; y++) {
+          for (let m = 0; m < 12; m++) {
+            if (y <= 8 && bal > 0) {
+              const intPart = bal * rMonthly;
+              const prinPart = Math.min(bal, activeEMI - intPart);
+              first8YrInterest += intPart;
+              bal = Math.max(0, bal - prinPart);
+            }
+            if (balCap > 0) {
+              const iC = balCap * rMonthly;
+              balCap = Math.max(0, balCap - Math.min(balCap, emiCap - iC));
+            }
+            if (balPaid > 0) {
+              const iP = balPaid * rMonthly;
+              balPaid = Math.max(0, balPaid - Math.min(balPaid, emiNoCap - iP));
+            }
+          }
+          repayBalancesCap.push(Math.round(balCap));
+          repayBalancesPaid.push(Math.round(balPaid));
+        }
+
+        const taxSavings80E = state.sec80e ? first8YrInterest * marginalRate : 0;
+        const savingsFromPayingMoratorium = (emiCap * months) - (emiNoCap * months + moratoriumInterest);
+
+        return {
+          stickerTuition,
+          totalHidden,
+          grossCollegeCost,
+          loanPrincipal,
+          moratoriumInterest,
+          repaymentInterest,
+          totalInterestAll,
+          trueTotalCost,
+          activeEMI,
+          monthlyTakeHome,
+          emiPct,
+          effectiveCTC,
+          taxSavings80E,
+          savingsFromPayingMoratorium,
+          studyBalancesCap,
+          studyBalancesPaid,
+          repayBalancesCap,
+          repayBalancesPaid
+        };
+      }
+
+      function render() {
+        readInputsIntoState();
+        const res = computeSimulation();
+
+        // Update slider readouts
+        el('val-tuition').textContent = formatINR(state.tuition);
+        el('val-contribution').textContent = formatINR(state.contribution);
+        el('val-rate').textContent = state.rate.toFixed(2) + '%';
+        el('val-ctc').textContent = '₹' + state.ctc.toFixed(1) + ' LPA';
+        el('badge-hidden-total').textContent = '+' + formatCompactINR(res.totalHidden);
+
+        // Disabled appearance for unchecked hidden costs
+        el('input-hostel').disabled = !state.chkHostel;
+        el('input-laptop').disabled = !state.chkLaptop;
+        el('input-exam').disabled = !state.chkExam;
+        el('input-travel').disabled = !state.chkTravel;
+
+        // KPIs
+        el('kpi-true-cost').textContent = formatCompactINR(res.trueTotalCost);
+        const mult = res.stickerTuition > 0 ? (res.trueTotalCost / res.stickerTuition).toFixed(2) : '1.00';
+        el('badge-multiplier').textContent = `${mult}x sticker`;
+        el('kpi-sticker-sub').textContent = `Sticker: ${formatCompactINR(res.stickerTuition)} · Loan needed: ${formatCompactINR(res.loanPrincipal)}`;
+
+        el('kpi-emi').textContent = formatINR(res.activeEMI) + '/mo';
+        const pctCapped = Math.min(100, Math.round(res.emiPct));
+        el('kpi-emi-pct').textContent = res.emiPct.toFixed(1) + '%';
+        el('anxiety-bar').style.width = pctCapped + '%';
+
+        const badge = el('badge-anxiety');
+        const bar = el('anxiety-bar');
+        if (res.emiPct <= 25) {
+          badge.textContent = 'Comfortable';
+          badge.className = 'rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800';
+          bar.className = 'h-full rounded-full bg-emerald-500 transition-all duration-300';
+        } else if (res.emiPct <= 35) {
+          badge.textContent = 'Manageable';
+          badge.className = 'rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-800';
+          bar.className = 'h-full rounded-full bg-amber-500 transition-all duration-300';
+        } else if (res.emiPct <= 45) {
+          badge.textContent = 'Tight Budget';
+          badge.className = 'rounded-full bg-orange-100 px-2.5 py-0.5 text-[11px] font-bold text-orange-800';
+          bar.className = 'h-full rounded-full bg-orange-500 transition-all duration-300';
+        } else {
+          badge.textContent = 'High Stress';
+          badge.className = 'rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-bold text-rose-800';
+          bar.className = 'h-full rounded-full bg-rose-600 transition-all duration-300';
+        }
+
+        el('kpi-moratorium').textContent = formatCompactINR(res.moratoriumInterest);
+        el('kpi-moratorium-sub').textContent = state.payMoratorium
+          ? 'Paid during study (no capitalization)'
+          : 'Added to principal before 1st EMI';
+        el('kpi-interest').textContent = formatCompactINR(res.totalInterestAll);
+        el('kpi-tax-save').textContent = formatCompactINR(res.taxSavings80E);
+        el('kpi-tax-sub').textContent = state.sec80e
+          ? 'First 8 yrs (Old Tax Regime)'
+          : 'Tax deduction disabled';
+
+        // Insights
+        const insights = [];
+        const hiddenPct = res.grossCollegeCost > 0 ? Math.round((res.totalHidden / res.grossCollegeCost) * 100) : 0;
+        insights.push(
+          `<li><strong>Hidden Cost Reality:</strong> Living, laptop, and misc fees add <strong>${formatCompactINR(res.totalHidden)}</strong> (${hiddenPct}% of your total college spend) on top of sticker tuition.</li>`
+        );
+
+        if (res.loanPrincipal > 0 && res.savingsFromPayingMoratorium > 1000) {
+          const avgStudyMo = Math.round(res.moratoriumInterest / Math.max(1, state.duration * 12 + state.grace));
+          if (!state.payMoratorium) {
+            insights.push(
+              `<li><strong>Beat Moratorium Shock:</strong> Paying just <strong>${formatINR(avgStudyMo)}/mo</strong> in simple interest while studying saves <strong>${formatCompactINR(res.savingsFromPayingMoratorium)}</strong> in compounded repayment interest.</li>`
+            );
+          } else {
+            insights.push(
+              `<li><strong>Smart Move:</strong> Paying study-period interest keeps your starting principal lower and saves <strong>${formatCompactINR(res.savingsFromPayingMoratorium)}</strong> over the loan life.</li>`
+            );
+          }
+        }
+
+        if (res.emiPct > 35) {
+          insights.push(
+            `<li><strong>EMI Stress Alert:</strong> At <strong>${res.emiPct.toFixed(1)}%</strong> of take-home pay, this EMI is heavy for a fresh grad. Consider increasing tenure, targeting a 0.5% girl-student concession, or adding a partial scholarship.</li>`
+          );
+        } else {
+          insights.push(
+            `<li><strong>Manageable Cash Flow:</strong> Your EMI takes <strong>${res.emiPct.toFixed(1)}%</strong> of estimated monthly take-home pay (~${formatINR(res.monthlyTakeHome)}/mo), leaving room for rent and savings.</li>`
+          );
+        }
+
+        el('insights-list').innerHTML = insights.join('');
+
+        updateCharts(res);
+      }
+
+      function updateCharts(res) {
+        const netTuition = Math.max(0, res.stickerTuition - state.contribution);
+        const breakdownData = [
+          Math.round(netTuition),
+          Math.round(res.totalHidden),
+          Math.round(res.moratoriumInterest),
+          Math.round(res.repaymentInterest)
+        ];
+
+        const ctxBreak = el('chart-breakdown').getContext('2d');
+        if (!breakdownChart) {
+          breakdownChart = new Chart(ctxBreak, {
+            type: 'doughnut',
+            data: {
+              labels: ['Net Tuition', 'Living & Hidden Costs', 'Moratorium Interest', 'Repayment Interest'],
+              datasets: [{
+                data: breakdownData,
+                backgroundColor: ['#4f46e5', '#f59e0b', '#f43f5e', '#0ea5e9'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: '62%',
+              plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => `${ctx.label}: ${formatCompactINR(ctx.raw)}`
+                  }
+                }
+              }
+            }
+          });
+        } else {
+          breakdownChart.data.datasets[0].data = breakdownData;
+          breakdownChart.update();
+        }
+
+        // Trajectory labels
+        const labels = [];
+        for (let y = 1; y <= state.duration; y++) labels.push(`Study Y${y}`);
+        for (let y = 1; y <= state.tenure; y++) labels.push(`Pay Y${y}`);
+
+        const capSeries = [...res.studyBalancesCap, ...res.repayBalancesCap];
+        const paidSeries = [...res.studyBalancesPaid, ...res.repayBalancesPaid];
+
+        const ctxTraj = el('chart-trajectory').getContext('2d');
+        if (!trajectoryChart) {
+          trajectoryChart = new Chart(ctxTraj, {
+            type: 'line',
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: 'Capitalize Moratorium',
+                  data: capSeries,
+                  borderColor: '#f43f5e',
+                  backgroundColor: 'rgba(244, 63, 94, 0.08)',
+                  fill: true,
+                  tension: 0.25,
+                  pointRadius: 2
+                },
+                {
+                  label: 'Pay Interest During Study',
+                  data: paidSeries,
+                  borderColor: '#10b981',
+                  backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                  fill: true,
+                  tension: 0.25,
+                  pointRadius: 2
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => `${ctx.dataset.label}: ${formatCompactINR(ctx.raw)}`
+                  }
+                }
+              },
+              scales: {
+                x: { ticks: { maxTicksLimit: 8, font: { size: 10 } }, grid: { display: false } },
+                y: {
+                  ticks: {
+                    font: { size: 10 },
+                    callback: (v) => formatCompactINR(v)
+                  }
+                }
+              }
+            }
+          });
+        } else {
+          trajectoryChart.data.labels = labels;
+          trajectoryChart.data.datasets[0].data = capSeries;
+          trajectoryChart.data.datasets[1].data = paidSeries;
+          trajectoryChart.update();
+        }
+      }
+
+      function showToast(msg) {
+        const toast = el('toast');
+        toast.textContent = msg;
+        toast.classList.remove('opacity-0', 'translate-y-4');
+        setTimeout(() => {
+          toast.classList.add('opacity-0', 'translate-y-4');
+        }, 2200);
+      }
+
+      // Event Listeners
+      const inputIds = [
+        'input-tuition', 'input-duration', 'input-inflation', 'input-contribution',
+        'chk-hostel', 'input-hostel', 'chk-laptop', 'input-laptop',
+        'chk-exam', 'input-exam', 'chk-travel', 'input-travel',
+        'input-rate', 'input-grace', 'input-tenure', 'chk-pay-moratorium',
+        'input-ctc', 'chk-sec80e'
+      ];
+      inputIds.forEach((id) => {
+        el(id).addEventListener('input', render);
+        el(id).addEventListener('change', render);
+      });
+
+      document.querySelectorAll('.preset-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.preset;
+          Object.assign(state, PRESETS[key], { activePreset: key });
+          writeStateToInputs();
+          render();
+        });
+      });
+
+      document.querySelectorAll('.rate-chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          el('input-rate').value = chip.dataset.rate;
+          render();
+        });
+      });
+
+      document.querySelectorAll('.market-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.market = btn.dataset.market;
+          writeStateToInputs();
+          render();
+        });
+      });
+
+      el('btn-reset').addEventListener('click', () => {
+        Object.assign(state, PRESETS['btech-private'], { activePreset: 'btech-private' });
+        writeStateToInputs();
+        render();
+        showToast('Reset to default B.Tech scenario');
+      });
+
+      el('btn-copy-summary').addEventListener('click', () => {
+        const res = computeSimulation();
+        const text = [
+          `STEM Education Loan True-Cost Summary`,
+          `Sticker Tuition (${state.duration} yrs): ${formatCompactINR(res.stickerTuition)}`,
+          `Living (${LIVING_DEFAULTS[state.livingType]?.label || state.livingType}): ${formatINR(state.chkHostel ? state.hostel : 0)}/mo`,
+          `Hidden & Living Costs: ${formatCompactINR(res.totalHidden)}`,
+          `Net Loan Principal: ${formatCompactINR(res.loanPrincipal)}`,
+          `Moratorium Interest: ${formatCompactINR(res.moratoriumInterest)}`,
+          `Monthly EMI (${state.tenure} yrs @ ${state.rate}%): ${formatINR(res.activeEMI)}/mo (${res.emiPct.toFixed(1)}% of take-home)`,
+          `True Total Cost: ${formatCompactINR(res.trueTotalCost)}`
+        ].join('\n');
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => showToast('Summary copied!')).catch(() => fallbackCopy(text));
+        } else {
+          fallbackCopy(text);
+        }
+      });
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('Summary copied!');
+        } catch (e) {
+          showToast('Could not copy summary');
+        }
+        document.body.removeChild(ta);
+      }
+
+      // Apply buyer branding config
+      if (SIMULATOR_CONFIG.brandTitle) {
+        document.title = SIMULATOR_CONFIG.brandTitle;
+        el('brand-title').textContent = SIMULATOR_CONFIG.brandTitle;
+      }
+      if (SIMULATOR_CONFIG.brandSubtitle) {
+        el('brand-subtitle').textContent = SIMULATOR_CONFIG.brandSubtitle;
+      }
+      if (SIMULATOR_CONFIG.ctaLabel && SIMULATOR_CONFIG.ctaUrl) {
+        const ctaBtn = el('btn-brand-cta');
+        ctaBtn.href = SIMULATOR_CONFIG.ctaUrl;
+        el('brand-cta-label').textContent = SIMULATOR_CONFIG.ctaLabel;
+        ctaBtn.classList.remove('hidden');
+      }
+
+      // Initialize
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+      writeStateToInputs();
+      render();
+    })();
+  </script>
+</body>
+</html>
